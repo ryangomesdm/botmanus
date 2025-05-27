@@ -51,7 +51,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     keyboard = []
     for plan in PLANS:
-        button_text = f"{plan["name"]} - R$ {plan["price"]:.2f}".replace(".", ",")
+       button_text = f"{plan['name']} - R$ {plan['price']:.2f}".replace(".", ",")
         keyboard.append([InlineKeyboardButton(button_text, callback_data=plan["callback"])])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
