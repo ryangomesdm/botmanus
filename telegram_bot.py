@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
-"""Basic structure for the Telegram Payment Bot, adapted for Render deployment."""
+"""Telegram Payment Bot with hardcoded credentials."""
 
 import logging
 import requests
 import json
-import os # Import os module to access environment variables
+import os # Keep os for checking video file path
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-# --- CONFIGURATION (Read from Environment Variables or use defaults/placeholders) ---
-TELEGRAM_BOT_TOKEN = os.environ.get("7556362045:AAE8TstMWbASHVsOZXGsOgJJOP8L-IZ1vME")
-PUSHINPAY_API_TOKEN = os.environ.get("31014|qWDjQVC0rw67nV87BO8LQjMFppkFZ6B0kGeKeV7pd2707f3b")
-PUSHINPAY_API_ENDPOINT = os.environ.get("PUSHINPAY_API_ENDPOINT", "https://api.pushinpay.com/pix/cashin") # Default endpoint
-VIDEO_FILE_PATH = os.environ.get("VIDEO_FILE_PATH", "/path/to/your/video.mp4") # Default placeholder path
-FINAL_LINK = os.environ.get("FINAL_LINK", "https://descubratudo.site/vipsim2/") # Default placeholder link
+# --- CONFIGURATION (Hardcoded Values - Less Secure) ---
+TELEGRAM_BOT_TOKEN = "7556362045:AAE8TstMWbASHVsOZXGsOgJJOP8L-IZ1vME"
+PUSHINPAY_API_TOKEN = "31014|qWDjQVC0rw67nV87BO8LQjMFppkFZ6B0kGeKeV7pd2707f3b"
+FINAL_LINK = "https://descubratudo.site/vipsim2/"
 
-# --- Check if essential tokens are set ---
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("No TELEGRAM_BOT_TOKEN set for bot. Set the environment variable.")
-if not PUSHINPAY_API_TOKEN:
-    raise ValueError("No PUSHINPAY_API_TOKEN set. Set the environment variable.")
+PUSHINPAY_API_ENDPOINT = "https://api.pushinpay.com/pix/cashin" # Default endpoint, check if correct
+VIDEO_FILE_PATH = "/path/to/your/video.mp4"  # Replace with the actual path to your video file if needed
 
 # Initial text message (Lorem Ipsum placeholder)
 INITIAL_TEXT = """
@@ -51,7 +46,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     keyboard = []
     for plan in PLANS:
-       button_text = f"{plan['name']} - R$ {plan['price']:.2f}".replace(".", ",")
+        # Corrected f-string syntax using single quotes inside
+        button_text = f"{plan['name']} - R$ {plan['price']:.2f}".replace(".", ",")
         keyboard.append([InlineKeyboardButton(button_text, callback_data=plan["callback"])])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -59,7 +55,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         # Check if video file exists before trying to open it
         if os.path.exists(VIDEO_FILE_PATH):
-             await context.bot.send_video(
+            await context.bot.send_video(
                 chat_id=update.effective_chat.id,
                 video=open(VIDEO_FILE_PATH, "rb"),
                 caption=INITIAL_TEXT,
@@ -67,17 +63,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 read_timeout=120,
                 write_timeout=120
             )
-             logger.info(f"Sent video and plan buttons to user {user.id}")
+            logger.info(f"Sent video and plan buttons to user {user.id}")
         else:
             logger.warning(f"Video file not found at {VIDEO_FILE_PATH}. Sending text message only.")
             await update.message.reply_text(
-                f"(Vídeo não configurado ou não encontrado.)\n\n{INITIAL_TEXT}",
+                f"(Vídeo não configurado ou não encontrado em '{VIDEO_FILE_PATH}'.)\n\n{INITIAL_TEXT}",
                 reply_markup=reply_markup
             )
 
     except Exception as e:
         logger.error(f"Error sending video/message in start handler: {e}")
-        # Avoid sending detailed error messages to the user in production
         await update.message.reply_text(
             f"Ocorreu um erro ao iniciar. Por favor, tente novamente mais tarde."
         )
@@ -168,9 +163,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 def main() -> None:
     """Start the bot."""
+    # Create the Application and pass it your bot's token.
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).read_timeout(30).write_timeout(30).build()
+
+    # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start))
+
+    # on non command i.e message - echo the message on Telegram
     application.add_handler(CallbackQueryHandler(button_callback))
+
+    # Run the bot until the user presses Ctrl-C
     logger.info("Starting bot polling...")
     application.run_polling()
 
