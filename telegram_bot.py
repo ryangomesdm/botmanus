@@ -9,7 +9,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # --- CONFIGURATION (Read from Environment Variables or use defaults/placeholders) ---
-TELEGRAM_BOT_TOKEN = os.environ.get("8051340678:AAGodiGyqjoAdYWYmDX9y8u_WsLQJnFEcBg")
+TELEGRAM_BOT_TOKEN = os.environ.get("7556362045:AAE8TstMWbASHVsOZXGsOgJJOP8L-IZ1vME")
 PUSHINPAY_API_TOKEN = os.environ.get("31014|qWDjQVC0rw67nV87BO8LQjMFppkFZ6B0kGeKeV7pd2707f3b")
 PUSHINPAY_API_ENDPOINT = os.environ.get("PUSHINPAY_API_ENDPOINT", "https://api.pushinpay.com/pix/cashin") # Default endpoint
 VIDEO_FILE_PATH = os.environ.get("VIDEO_FILE_PATH", "/path/to/your/video.mp4") # Default placeholder path
